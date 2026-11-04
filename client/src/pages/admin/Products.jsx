@@ -109,6 +109,7 @@ export default function Products() {
                   {!p.active && <span className="badge">{t('products.hidden')}</span>}
                   <span className="muted small block">
                     {p.categoryName || t('order.otherCategory')}
+                    {p.sizes && ` · ${p.sizes}`}
                     {p.unit && ` · ${p.unit}`}
                     {p.articleNo && ` · ${t('products.articleNoShort')} ${p.articleNo}`}
                   </span>
@@ -142,6 +143,7 @@ function ProductForm({ product, categories, onClose, onSaved }) {
     name: product?.name ?? '',
     categoryName: product?.categoryName ?? '',
     unit: product?.unit ?? '',
+    sizes: product?.sizes ?? '',
     articleNo: product?.articleNo ?? '',
     active: product?.active ?? true,
   });
@@ -186,6 +188,9 @@ function ProductForm({ product, categories, onClose, onSaved }) {
           <datalist id="category-names">
             {categories.map((c) => <option key={c.id} value={c.name} />)}
           </datalist>
+        </Field>
+        <Field label={`${t('products.sizes')} (${t('common.optional')})`} hint={t('products.sizesHint')}>
+          <input value={form.sizes} maxLength={150} onChange={set('sizes')} placeholder="2kg, 1kg, 500g" />
         </Field>
         <div className="field-row even">
           <Field label={`${t('products.unit')} (${t('common.optional')})`}>

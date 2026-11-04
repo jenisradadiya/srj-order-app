@@ -190,6 +190,7 @@ export default {
     customName: 'What do you need?',
     customNamePlaceholder: 'e.g. Kasuri Methi',
     alreadyInCart: 'Already in the cart:',
+    size: 'Size – tap one',
   },
   voice: {
     record: 'Record voice message',
@@ -261,6 +262,8 @@ export default {
     hidden: 'Hidden',
     unit: 'Unit',
     unitPlaceholder: 'e.g. kg, carton, piece',
+    sizes: 'Sizes / packs',
+    sizesHint: 'Separated by commas, e.g. "2kg, 1kg, 500g". Customers can tap a size when ordering.',
     articleNo: 'Article number',
     articleNoShort: 'No.',
     visibleToCustomers: 'Visible to customers',
@@ -288,6 +291,7 @@ export default {
     column: 'Column',
     notInFile: 'not in the file',
     field: {
+      sizes: 'Sizes / packs',
       name: 'Product name',
       category: 'Category',
       articleNo: 'Article number',

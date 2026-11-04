@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useI18n } from '../i18n/index.jsx';
 import { ErrorText, Field, Icon, Modal } from './ui.jsx';
 import { VoiceRecorder } from './Voice.jsx';
+import { applySize, sizeOptions } from '../lib/sizes.js';
 
 // Turns "2,5" or "2.5" into 2.5; returns NaN for anything else.
 const parseQty = (text) => Number(String(text).replace(',', '.').trim());
@@ -36,6 +37,9 @@ export default function ItemSheet({ product, item, custom, existingLines = [], o
   const isCustom = custom || (item && !item.productId);
   const title = isCustom ? (item ? t('item.editCustom') : t('item.addCustom')) : (product?.name ?? item?.name);
   const unit = product?.unit ?? item?.unit ?? '';
+  const sizes = product?.sizes ?? item?.sizes ?? '';
+  const options = sizeOptions(sizes);
+  const chosenSize = options.find((o) => note.split(' · ')[0].trim() === o);
 
   const save = (e) => {
     e.preventDefault();
@@ -46,6 +50,7 @@ export default function ItemSheet({ product, item, custom, existingLines = [], o
       productId: isCustom ? null : (product?.id ?? item.productId),
       name: isCustom ? name.trim() : (product?.name ?? item.name),
       unit,
+      sizes,
       quantity,
       note: note.trim(),
       voice,
@@ -66,6 +71,20 @@ export default function ItemSheet({ product, item, custom, existingLines = [], o
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('item.customNamePlaceholder')} autoFocus />
           </Field>
         )}
+        {options.length > 0 && (
+          <div className="field">
+            <span className="field-label">{t('item.size')}</span>
+            <div className="chip-row size-chips" role="group" aria-label={t('item.size')}>
+              {options.map((o) => (
+                <button type="button" key={o} className={`chip ${chosenSize === o ? 'selected' : ''}`} aria-pressed={chosenSize === o}
+                  onClick={() => setNote(applySize(note, o, options))}>
+                  {o}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {options.length === 0 && sizes && <p className="muted small">{sizes}</p>}
         <Field label={unit ? `${t('item.quantity')} (${unit})` : t('item.quantity')}>
           <QuantityStepper value={qty} onChange={setQty} />
         </Field>

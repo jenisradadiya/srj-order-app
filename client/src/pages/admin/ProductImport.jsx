@@ -5,21 +5,22 @@ import { useI18n } from '../../i18n/index.jsx';
 import { invalidateCatalog } from '../../lib/catalog.js';
 import { ErrorText, Field, Icon } from '../../components/ui.jsx';
 
-const FIELDS = ['name', 'category', 'articleNo', 'unit'];
+const FIELDS = ['name', 'category', 'sizes', 'articleNo', 'unit'];
 const CHUNK = 500;
 
 // Guesses which column holds what, from German or English headers (and weclapp exports).
 const GUESS = {
   articleNo: /art.*(nr|nummer|no)|artikelnummer|^nr\.?$|sku|ean|code|article.?(no|number)/i,
   category: /kategorie|warengruppe|artikelgruppe|gruppe|categor/i,
-  unit: /einheit|^me$|gebinde|vpe|unit|verpackung/i,
+  sizes: /größe|grösse|groesse|gebinde|packung|size/i,
+  unit: /einheit|^me$|vpe|^unit/i,
   name: /bezeichnung|artikelname|name|produkt|artikel|beschreibung|description|product/i,
 };
 
 function guessMapping(headers) {
   const mapping = {};
   const used = new Set();
-  for (const field of ['articleNo', 'category', 'unit', 'name']) {
+  for (const field of ['articleNo', 'category', 'sizes', 'unit', 'name']) {
     const index = headers.findIndex((h, i) => !used.has(i) && GUESS[field].test(String(h)));
     if (index !== -1) {
       mapping[field] = index;

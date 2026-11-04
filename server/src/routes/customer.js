@@ -23,7 +23,7 @@ function orderScope(user) {
 router.get('/catalog', requireAuth, (req, res) => {
   const categories = db.prepare('SELECT id, name FROM categories ORDER BY sort, name COLLATE NOCASE').all();
   const products = db
-    .prepare('SELECT id, name, category_id AS categoryId, unit FROM products WHERE active = 1 ORDER BY name COLLATE NOCASE')
+    .prepare('SELECT id, name, category_id AS categoryId, unit, sizes FROM products WHERE active = 1 ORDER BY name COLLATE NOCASE')
     .all();
 
   let frequent = [];

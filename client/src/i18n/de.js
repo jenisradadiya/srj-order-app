@@ -281,6 +281,7 @@ export default {
     column: 'Spalte',
     notInFile: 'nicht in der Datei',
     field: {
+      sizes: 'Größen / Gebinde',
       name: 'Artikelname',
       category: 'Kategorie',
       articleNo: 'Artikelnummer',

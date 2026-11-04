@@ -256,6 +256,11 @@ const migrations = [
     value  TEXT NOT NULL
   );
   `,
+
+  // 6: available sizes / packs per product, e.g. "2kg, 1kg, 500g"
+  `
+  ALTER TABLE products ADD COLUMN sizes TEXT NOT NULL DEFAULT '';
+  `,
 ];
 
 export function getSetting(key, fallback = null) {

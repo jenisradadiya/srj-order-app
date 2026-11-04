@@ -64,3 +64,8 @@ h3 { margin-top: 4px; }
   .topbar { justify-content: space-between; }
   .bell { margin-left: auto; }
 }
+
+/* Product sizes */
+.product-sizes { display: block; font-weight: 400; margin-top: 2px; }
+.size-chips .chip { min-height: 40px; padding: 0 16px; font-weight: 600; font-size: 0.95rem; }
+.chip.selected { background: var(--red); border-color: var(--red); color: #fff; }

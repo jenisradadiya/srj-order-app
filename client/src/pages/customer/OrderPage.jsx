@@ -115,6 +115,7 @@ export default function OrderPage() {
                   <span className="product-name">
                     {p.name}
                     {p.unit && <span className="muted small"> · {p.unit}</span>}
+                    {p.sizes && <span className="product-sizes muted small">{p.sizes}</span>}
                   </span>
                   {countByProduct.get(p.id) ? (
                     <span className="in-cart-badge"><Icon name="check" size={14} /> {countByProduct.get(p.id)}</span>

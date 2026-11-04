@@ -6,7 +6,7 @@ import { HttpError, cleanStr } from '../util.js';
 const router = Router();
 
 const PRODUCT_COLS = `p.id, p.name, p.category_id AS categoryId, c.name AS categoryName, p.article_no AS articleNo,
-  p.unit, p.active, p.updated_at AS updatedAt`;
+  p.unit, p.sizes, p.active, p.updated_at AS updatedAt`;
 const toProduct = (p) => p && { ...p, active: Boolean(p.active) };
 const getProduct = (id) =>
   toProduct(db.prepare(`SELECT ${PRODUCT_COLS} FROM products p LEFT JOIN categories c ON c.id = p.category_id WHERE p.id = ?`).get(id));
@@ -32,7 +32,14 @@ function readProduct(body) {
   } else if (body.categoryName) {
     categoryId = categoryIdFor(body.categoryName);
   }
-  return { name, categoryId, articleNo: cleanStr(body.articleNo, 40), unit: cleanStr(body.unit, 30), active: body.active !== false };
+  return {
+    name,
+    categoryId,
+    articleNo: cleanStr(body.articleNo, 40),
+    unit: cleanStr(body.unit, 30),
+    sizes: cleanStr(body.sizes, 150),
+    active: body.active !== false,
+  };
 }
 
 function assertArticleNoFree(articleNo, exceptId = 0) {
@@ -79,8 +86,8 @@ router.post('/products', (req, res) => {
     return p;
   });
   const id = Number(
-    db.prepare('INSERT INTO products (name, category_id, article_no, unit, active) VALUES (?, ?, ?, ?, ?)')
-      .run(p.name, p.categoryId, p.articleNo, p.unit, p.active ? 1 : 0).lastInsertRowid
+    db.prepare('INSERT INTO products (name, category_id, article_no, unit, sizes, active) VALUES (?, ?, ?, ?, ?, ?)')
+      .run(p.name, p.categoryId, p.articleNo, p.unit, p.sizes, p.active ? 1 : 0).lastInsertRowid
   );
   res.status(201).json({ product: getProduct(id) });
 });
@@ -93,8 +100,8 @@ router.patch('/products/:id', (req, res) => {
     assertArticleNoFree(p.articleNo, existing.id);
     return p;
   });
-  db.prepare('UPDATE products SET name = ?, category_id = ?, article_no = ?, unit = ?, active = ?, updated_at = ? WHERE id = ?')
-    .run(p.name, p.categoryId, p.articleNo, p.unit, p.active ? 1 : 0, NOW(), existing.id);
+  db.prepare('UPDATE products SET name = ?, category_id = ?, article_no = ?, unit = ?, sizes = ?, active = ?, updated_at = ? WHERE id = ?')
+    .run(p.name, p.categoryId, p.articleNo, p.unit, p.sizes, p.active ? 1 : 0, NOW(), existing.id);
   res.json({ product: getProduct(existing.id) });
 });
 
@@ -113,10 +120,10 @@ router.post('/products/import', (req, res) => {
 
   const result = { created: 0, updated: 0, unchanged: 0, skipped: 0 };
   transaction(() => {
-    const byArticle = db.prepare('SELECT id, name, category_id, unit FROM products WHERE article_no = ?');
-    const byName = db.prepare(`SELECT id, name, category_id, unit FROM products WHERE name = ? COLLATE NOCASE AND article_no = ''`);
-    const insert = db.prepare('INSERT INTO products (name, category_id, article_no, unit) VALUES (?, ?, ?, ?)');
-    const update = db.prepare('UPDATE products SET name = ?, category_id = ?, unit = ?, updated_at = ? WHERE id = ?');
+    const byArticle = db.prepare('SELECT id, name, category_id, unit, sizes FROM products WHERE article_no = ?');
+    const byName = db.prepare(`SELECT id, name, category_id, unit, sizes FROM products WHERE name = ? COLLATE NOCASE AND article_no = ''`);
+    const insert = db.prepare('INSERT INTO products (name, category_id, article_no, unit, sizes) VALUES (?, ?, ?, ?, ?)');
+    const update = db.prepare('UPDATE products SET name = ?, category_id = ?, unit = ?, sizes = ?, updated_at = ? WHERE id = ?');
 
     for (const row of rows) {
       const name = cleanStr(String(row.name ?? ''), 120);
@@ -126,19 +133,21 @@ router.post('/products/import', (req, res) => {
       }
       const articleNo = cleanStr(String(row.articleNo ?? ''), 40);
       const unit = cleanStr(String(row.unit ?? ''), 30);
+      const sizes = cleanStr(String(row.sizes ?? ''), 150);
       const categoryId = categoryIdFor(String(row.category ?? ''));
       const existing = articleNo ? byArticle.get(articleNo) : byName.get(name);
 
       if (!existing) {
-        insert.run(name, categoryId, articleNo, unit);
+        insert.run(name, categoryId, articleNo, unit, sizes);
         result.created++;
       } else {
         // Keep the current value when the file leaves a column empty.
-        const next = { name, categoryId: categoryId ?? existing.category_id, unit: unit || existing.unit };
-        if (next.name === existing.name && next.categoryId === existing.category_id && next.unit === existing.unit) {
+        const next = { name, categoryId: categoryId ?? existing.category_id, unit: unit || existing.unit, sizes: sizes || existing.sizes };
+        const same = ['name', 'unit', 'sizes'].every((k) => next[k] === existing[k]) && next.categoryId === existing.category_id;
+        if (same) {
           result.unchanged++;
         } else {
-          update.run(next.name, next.categoryId, next.unit, NOW(), existing.id);
+          update.run(next.name, next.categoryId, next.unit, next.sizes, NOW(), existing.id);
           result.updated++;
         }
       }
