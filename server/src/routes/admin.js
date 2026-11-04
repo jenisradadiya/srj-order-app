@@ -44,6 +44,7 @@ router.get('/stats', (req, res) => {
     acceptedOrders: count(`SELECT COUNT(*) AS n FROM orders WHERE status = 'accepted'`),
     ordersToday: count('SELECT COUNT(*) AS n FROM orders WHERE created_at >= ?', startOfToday()),
     products: count('SELECT COUNT(*) AS n FROM products'),
+    outOfStock: count('SELECT COUNT(*) AS n FROM finished_items WHERE resolved_at IS NULL'),
   });
 });
 

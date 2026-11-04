@@ -7,7 +7,12 @@ import { Spinner } from './components/ui.jsx';
 import Login from './pages/Login.jsx';
 import Setup from './pages/Setup.jsx';
 import Profile from './pages/Profile.jsx';
-import WarehouseHome from './pages/WarehouseHome.jsx';
+import DayView from './pages/team/DayView.jsx';
+import TeamOrders from './pages/team/TeamOrders.jsx';
+import TeamOrderDetail from './pages/team/TeamOrderDetail.jsx';
+import Stock from './pages/team/Stock.jsx';
+import Routes_ from './pages/admin/Routes.jsx';
+import PlanEditor from './pages/admin/PlanEditor.jsx';
 import OrderPage from './pages/customer/OrderPage.jsx';
 import CartPage from './pages/customer/CartPage.jsx';
 import OrdersPage from './pages/customer/OrdersPage.jsx';
@@ -62,9 +67,20 @@ export default function App() {
           <Route path="/admin/products" element={<Products />} />
           <Route path="/admin/products/import" element={<ProductImport />} />
           <Route path="/admin/team" element={<Team />} />
+          <Route path="/admin/routes" element={<Routes_ />} />
+          <Route path="/admin/routes/plan/:key" element={<PlanEditor />} />
+          <Route path="/admin/day" element={<DayView />} />
+          <Route path="/admin/stock" element={<Stock />} />
         </>
       )}
-      {role === 'warehouse' && <Route path="/warehouse" element={<WarehouseHome />} />}
+      {role === 'warehouse' && (
+        <>
+          <Route path="/warehouse" element={<DayView />} />
+          <Route path="/warehouse/orders" element={<TeamOrders />} />
+          <Route path="/warehouse/orders/:id" element={<TeamOrderDetail />} />
+          <Route path="/warehouse/stock" element={<Stock />} />
+        </>
+      )}
       {isCustomer && (
         <>
           <Route path="/order" element={<OrderPage />} />

@@ -142,6 +142,54 @@ const migrations = [
   CREATE INDEX order_items_order ON order_items(order_id);
   CREATE INDEX order_items_product ON order_items(product_id);
   `,
+
+  // 3: route plans and warehouse notes
+  `
+  -- A plan is either the weekly template ("w1" = Monday … "w7" = Sunday)
+  -- or one specific day ("d2026-11-05") that was changed from the template.
+  CREATE TABLE plan_routes (
+    id        INTEGER PRIMARY KEY,
+    plan_key  TEXT NOT NULL,
+    name      TEXT NOT NULL,
+    position  INTEGER NOT NULL
+  );
+  CREATE INDEX plan_routes_key ON plan_routes(plan_key);
+
+  CREATE TABLE plan_stops (
+    route_id   INTEGER NOT NULL REFERENCES plan_routes(id) ON DELETE CASCADE,
+    branch_id  INTEGER NOT NULL REFERENCES branches(id) ON DELETE CASCADE,
+    position   INTEGER NOT NULL,
+    PRIMARY KEY (route_id, branch_id)
+  );
+  CREATE INDEX plan_stops_branch ON plan_stops(branch_id);
+
+  -- Days listed here use their own plan instead of the weekly template.
+  CREATE TABLE custom_days (
+    date  TEXT PRIMARY KEY
+  );
+
+  -- Written by the warehouse: missing for this one order only.
+  CREATE TABLE missing_items (
+    id          INTEGER PRIMARY KEY,
+    order_id    INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    text        TEXT NOT NULL,
+    user_id     INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    user_name   TEXT NOT NULL,
+    created_at  TEXT NOT NULL DEFAULT ${NOW}
+  );
+  CREATE INDEX missing_items_order ON missing_items(order_id);
+
+  -- Written by the warehouse: the whole warehouse is out of this item.
+  CREATE TABLE finished_items (
+    id           INTEGER PRIMARY KEY,
+    text         TEXT NOT NULL,
+    user_id      INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    user_name    TEXT NOT NULL,
+    created_at   TEXT NOT NULL DEFAULT ${NOW},
+    resolved_at  TEXT,
+    resolved_by  TEXT
+  );
+  `,
 ];
 
 export { dataDir };

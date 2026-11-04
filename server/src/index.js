@@ -11,6 +11,8 @@ import adminCatalogRoutes from './routes/adminCatalog.js';
 import adminOrderRoutes from './routes/adminOrders.js';
 import customerRoutes from './routes/customer.js';
 import voiceRoutes, { cleanupVoice } from './routes/voice.js';
+import teamRoutes from './routes/team.js';
+import adminRouteRoutes from './routes/adminRoutes.js';
 
 const PORT = Number(process.env.PORT) || 3001;
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -32,7 +34,8 @@ app.use(loadUser);
 app.use('/api', authRoutes);
 app.use('/api', voiceRoutes);
 app.use('/api', customerRoutes);
-app.use('/api/admin', requireRole('admin'), adminRoutes, adminCatalogRoutes, adminOrderRoutes);
+app.use('/api/team', requireRole('admin', 'warehouse'), teamRoutes);
+app.use('/api/admin', requireRole('admin'), adminRoutes, adminCatalogRoutes, adminOrderRoutes, adminRouteRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: 'not_found' }));
 
 // After `npm run build`, the server also serves the app itself.

@@ -58,10 +58,18 @@ export default function Profile() {
       )}
 
       {user.role === 'admin' && (
-        <Link to="/admin/team" className="customer-card mobile-only">
-          <span><Icon name="users" /> {t('nav.team')}</span>
-          <Icon name="chevron" />
-        </Link>
+        <div className="mobile-only stack">
+          {[
+            { to: '/admin/products', icon: 'tag', label: 'nav.products' },
+            { to: '/admin/stock', icon: 'box', label: 'nav.stock' },
+            { to: '/admin/team', icon: 'users', label: 'nav.team' },
+          ].map((l) => (
+            <Link key={l.to} to={l.to} className="customer-card">
+              <span className="icon-label"><Icon name={l.icon} /> {t(l.label)}</span>
+              <Icon name="chevron" />
+            </Link>
+          ))}
+        </div>
       )}
 
       <section className="card">

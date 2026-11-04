@@ -8,7 +8,8 @@ const LIST_SELECT = `
          b.city AS branchCity,
          (SELECT COUNT(*) FROM order_items i WHERE i.order_id = o.id) AS itemCount,
          (o.voice_id IS NOT NULL OR EXISTS (SELECT 1 FROM order_items i WHERE i.order_id = o.id AND i.voice_id IS NOT NULL)) AS hasVoice,
-         (o.note <> '') AS hasNote
+         (o.note <> '') AS hasNote,
+         (SELECT COUNT(*) FROM missing_items m WHERE m.order_id = o.id) AS missingCount
   FROM orders o
   JOIN customers c ON c.id = o.customer_id
   JOIN branches b ON b.id = o.branch_id`;
@@ -23,6 +24,13 @@ export function listOrders({ where = [], params = [], limit = 50, offset = 0 }) 
     .map((o) => ({ ...o, hasVoice: Boolean(o.hasVoice), hasNote: Boolean(o.hasNote) }));
   return { total, orders };
 }
+
+// Warehouse notes for one order. Only SRJ staff may see these, never the customer.
+export const getMissing = (orderId) =>
+  db.prepare(
+    `SELECT id, text, user_id AS userId, user_name AS userName, created_at AS createdAt
+     FROM missing_items WHERE order_id = ? ORDER BY id`
+  ).all(Number(orderId));
 
 const voiceInfo = (id) => (id ? db.prepare('SELECT id, duration FROM voice_messages WHERE id = ?').get(id) ?? null : null);
 

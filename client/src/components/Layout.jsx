@@ -11,12 +11,20 @@ const NAV = {
   admin: [
     { to: '/admin', label: 'nav.dashboard', icon: 'home', end: true },
     { to: '/admin/orders', label: 'nav.orders', icon: 'list', badge: 'newOrders' },
+    { to: '/admin/routes', label: 'nav.routes', icon: 'pin' },
     { to: '/admin/customers', label: 'nav.customers', icon: 'store' },
-    { to: '/admin/products', label: 'nav.products', icon: 'tag' },
-    { to: '/admin/team', label: 'nav.team', icon: 'users', desktopOnly: true }, // on phones: via Profile
+    // On phones these three are reached from the Profile page.
+    { to: '/admin/products', label: 'nav.products', icon: 'tag', desktopOnly: true },
+    { to: '/admin/stock', label: 'nav.stock', icon: 'box', desktopOnly: true },
+    { to: '/admin/team', label: 'nav.team', icon: 'users', desktopOnly: true },
     PROFILE,
   ],
-  warehouse: [{ to: '/warehouse', label: 'nav.orders', icon: 'box' }, PROFILE],
+  warehouse: [
+    { to: '/warehouse', label: 'nav.today', icon: 'pin', end: true },
+    { to: '/warehouse/orders', label: 'nav.orders', icon: 'list' },
+    { to: '/warehouse/stock', label: 'nav.stock', icon: 'box' },
+    PROFILE,
+  ],
   owner: [
     { to: '/order', label: 'nav.order', icon: 'cart' },
     { to: '/orders', label: 'nav.myOrders', icon: 'list' },

@@ -4,6 +4,7 @@ import { api } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
 import { useI18n } from '../../i18n/index.jsx';
 import { ErrorText, Icon, Spinner } from '../../components/ui.jsx';
+import { RecentMissing } from '../team/Stock.jsx';
 
 export default function Dashboard() {
   const { t, te } = useI18n();
@@ -22,6 +23,8 @@ export default function Dashboard() {
     { label: t('dashboard.customers'), value: stats.customers, to: '/admin/customers' },
     { label: t('dashboard.customerUsers'), value: stats.customerUsers, to: '/admin/customers' },
     { label: t('dashboard.products'), value: stats.products, to: '/admin/products' },
+    { label: t('dashboard.outOfStock'), value: stats.outOfStock, to: '/admin/stock', highlight: stats.outOfStock > 0 },
+    { label: t('dashboard.todayRoutes'), value: '→', to: '/admin/day' },
   ];
 
   return (
@@ -49,11 +52,14 @@ export default function Dashboard() {
             </p>
           )}
 
+          <RecentMissing limit={5} compact />
+
           <section className="card">
             <h2>{t('dashboard.quickActions')}</h2>
             <div className="quick-actions">
               <Link className="btn" to="/admin/orders"><Icon name="list" /> {t('nav.orders')}</Link>
               <Link className="btn" to="/admin/customers?new=1"><Icon name="plus" /> {t('customers.add')}</Link>
+              <Link className="btn" to="/admin/routes"><Icon name="pin" /> {t('nav.routes')}</Link>
               <Link className="btn" to="/admin/products"><Icon name="tag" /> {t('nav.products')}</Link>
               <Link className="btn" to="/admin/team"><Icon name="users" /> {t('nav.team')}</Link>
             </div>

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db.js';
 import { HttpError, cleanStr } from '../util.js';
-import { getOrderDetail, listOrders } from '../orders.js';
+import { getMissing, getOrderDetail, listOrders } from '../orders.js';
 
 // Order inbox for SRJ. Mounted behind requireRole('admin').
 const router = Router();
@@ -37,7 +37,7 @@ router.get('/orders', (req, res) => {
 router.get('/orders/:id', (req, res) => {
   const order = getOrderDetail(req.params.id);
   if (!order) throw new HttpError(404, 'not_found');
-  res.json({ order });
+  res.json({ order: { ...order, missing: getMissing(order.id) } });
 });
 
 // sent -> accepted -> delivered. Going back one step is allowed to fix a mistake.
@@ -59,7 +59,7 @@ router.post('/orders/:id/status', (req, res) => {
   } else {
     db.prepare(`UPDATE orders SET status = 'delivered', delivered_at = ? WHERE id = ?`).run(now, order.id);
   }
-  res.json({ order: getOrderDetail(order.id) });
+  res.json({ order: { ...getOrderDetail(order.id), missing: getMissing(order.id) } });
 });
 
 export default router;

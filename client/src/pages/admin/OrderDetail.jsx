@@ -4,6 +4,7 @@ import { api } from '../../api.js';
 import { useI18n } from '../../i18n/index.jsx';
 import { ErrorText, Icon, Spinner, formatPhone } from '../../components/ui.jsx';
 import { OrderItems, OrderMessage, StatusBadge, StatusSteps, branchAddress } from '../../components/OrderView.jsx';
+import MissingItems from '../../components/team/MissingItems.jsx';
 
 export default function OrderDetail() {
   const { id } = useParams();
@@ -96,6 +97,10 @@ export default function OrderDetail() {
             <h2>{t('cart.items', { count: order.items.length })}</h2>
             <OrderItems items={order.items} showCategory />
           </section>
+
+          <div className="no-print">
+            <MissingItems order={order} onChange={(missing) => setOrder({ ...order, missing })} />
+          </div>
         </>
       )}
     </div>
