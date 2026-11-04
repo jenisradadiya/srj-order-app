@@ -7,6 +7,7 @@ import { AuthProvider } from './auth.jsx';
 import './styles.css';
 import './ordering.css';
 import './planning.css';
+import './bills.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

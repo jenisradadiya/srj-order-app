@@ -190,6 +190,39 @@ const migrations = [
     resolved_by  TEXT
   );
   `,
+
+  // 4: bills (Rechnungen) and payments. Money is stored in cents.
+  `
+  CREATE TABLE invoices (
+    id            INTEGER PRIMARY KEY,
+    customer_id   INTEGER NOT NULL REFERENCES customers(id),
+    branch_id     INTEGER REFERENCES branches(id) ON DELETE SET NULL,
+    order_id      INTEGER REFERENCES orders(id) ON DELETE SET NULL,
+    number        TEXT NOT NULL,
+    invoice_date  TEXT NOT NULL,
+    amount_cents  INTEGER NOT NULL CHECK (amount_cents > 0),
+    note          TEXT NOT NULL DEFAULT '',
+    file_id       TEXT,
+    file_name     TEXT,
+    created_by    TEXT NOT NULL,
+    created_at    TEXT NOT NULL DEFAULT ${NOW}
+  );
+  CREATE UNIQUE INDEX invoices_number ON invoices(number COLLATE NOCASE);
+  CREATE INDEX invoices_customer ON invoices(customer_id, invoice_date);
+  CREATE INDEX invoices_order ON invoices(order_id);
+
+  CREATE TABLE payments (
+    id            INTEGER PRIMARY KEY,
+    invoice_id    INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+    amount_cents  INTEGER NOT NULL CHECK (amount_cents > 0),
+    paid_on       TEXT NOT NULL,
+    method        TEXT NOT NULL CHECK (method IN ('bank', 'cash', 'other')),
+    note          TEXT NOT NULL DEFAULT '',
+    created_by    TEXT NOT NULL,
+    created_at    TEXT NOT NULL DEFAULT ${NOW}
+  );
+  CREATE INDEX payments_invoice ON payments(invoice_id);
+  `,
 ];
 
 export { dataDir };

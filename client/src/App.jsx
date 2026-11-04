@@ -13,6 +13,10 @@ import TeamOrderDetail from './pages/team/TeamOrderDetail.jsx';
 import Stock from './pages/team/Stock.jsx';
 import Routes_ from './pages/admin/Routes.jsx';
 import PlanEditor from './pages/admin/PlanEditor.jsx';
+import Bills from './pages/admin/Bills.jsx';
+import BillDetail from './pages/admin/BillDetail.jsx';
+import BillsPage from './pages/customer/BillsPage.jsx';
+import BillDetailPage from './pages/customer/BillDetailPage.jsx';
 import OrderPage from './pages/customer/OrderPage.jsx';
 import CartPage from './pages/customer/CartPage.jsx';
 import OrdersPage from './pages/customer/OrdersPage.jsx';
@@ -71,6 +75,8 @@ export default function App() {
           <Route path="/admin/routes/plan/:key" element={<PlanEditor />} />
           <Route path="/admin/day" element={<DayView />} />
           <Route path="/admin/stock" element={<Stock />} />
+          <Route path="/admin/bills" element={<Bills />} />
+          <Route path="/admin/bills/:id" element={<BillDetail />} />
         </>
       )}
       {role === 'warehouse' && (
@@ -87,6 +93,12 @@ export default function App() {
           <Route path="/order/cart" element={<CartPage />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/orders/:id" element={<OrderDetailPage />} />
+        </>
+      )}
+      {role === 'owner' && (
+        <>
+          <Route path="/bills" element={<BillsPage />} />
+          <Route path="/bills/:id" element={<BillDetailPage />} />
         </>
       )}
       <Route path="*" element={<Navigate to={homePath(role)} replace />} />

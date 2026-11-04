@@ -5,6 +5,7 @@ import { useI18n } from '../../i18n/index.jsx';
 import { ErrorText, Icon, Spinner, formatPhone } from '../../components/ui.jsx';
 import { BranchForm, CustomerForm } from '../../components/admin/CustomerForms.jsx';
 import UsersSection from '../../components/admin/UsersSection.jsx';
+import LinkedBills from '../../components/bills/LinkedBills.jsx';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -106,6 +107,8 @@ export default function CustomerDetail() {
       </section>
 
       <UsersSection title={t('users.title')} users={users} mode="customer" customer={customer} branches={branches} onChanged={load} />
+
+      <LinkedBills title={t('bills.title')} filter={{ customerId: customer.id }} prefill={{ customerId: customer.id }} />
 
       {editingCustomer && (
         <CustomerForm customer={customer} onClose={() => setEditingCustomer(false)}

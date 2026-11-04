@@ -5,6 +5,7 @@ import { useI18n } from '../../i18n/index.jsx';
 import { ErrorText, Icon, Spinner, formatPhone } from '../../components/ui.jsx';
 import { OrderItems, OrderMessage, StatusBadge, StatusSteps, branchAddress } from '../../components/OrderView.jsx';
 import MissingItems from '../../components/team/MissingItems.jsx';
+import LinkedBills from '../../components/bills/LinkedBills.jsx';
 
 export default function OrderDetail() {
   const { id } = useParams();
@@ -98,8 +99,10 @@ export default function OrderDetail() {
             <OrderItems items={order.items} showCategory />
           </section>
 
-          <div className="no-print">
+          <div className="no-print stack">
             <MissingItems order={order} onChange={(missing) => setOrder({ ...order, missing })} />
+            <LinkedBills title={t('bills.forOrder')} filter={{ orderId: order.id }}
+              prefill={{ customerId: order.customer.id, branchId: order.branch.id, orderId: order.id }} />
           </div>
         </>
       )}

@@ -60,6 +60,7 @@ export default function Profile() {
       {user.role === 'admin' && (
         <div className="mobile-only stack">
           {[
+            { to: '/admin/routes', icon: 'pin', label: 'nav.routes' },
             { to: '/admin/products', icon: 'tag', label: 'nav.products' },
             { to: '/admin/stock', icon: 'box', label: 'nav.stock' },
             { to: '/admin/team', icon: 'users', label: 'nav.team' },

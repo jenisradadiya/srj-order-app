@@ -11,9 +11,10 @@ const NAV = {
   admin: [
     { to: '/admin', label: 'nav.dashboard', icon: 'home', end: true },
     { to: '/admin/orders', label: 'nav.orders', icon: 'list', badge: 'newOrders' },
-    { to: '/admin/routes', label: 'nav.routes', icon: 'pin' },
     { to: '/admin/customers', label: 'nav.customers', icon: 'store' },
-    // On phones these three are reached from the Profile page.
+    { to: '/admin/bills', label: 'nav.bills', icon: 'euro' },
+    // On phones these are reached from the Profile page.
+    { to: '/admin/routes', label: 'nav.routes', icon: 'pin', desktopOnly: true },
     { to: '/admin/products', label: 'nav.products', icon: 'tag', desktopOnly: true },
     { to: '/admin/stock', label: 'nav.stock', icon: 'box', desktopOnly: true },
     { to: '/admin/team', label: 'nav.team', icon: 'users', desktopOnly: true },
@@ -28,6 +29,7 @@ const NAV = {
   owner: [
     { to: '/order', label: 'nav.order', icon: 'cart' },
     { to: '/orders', label: 'nav.myOrders', icon: 'list' },
+    { to: '/bills', label: 'nav.bills', icon: 'euro' },
     PROFILE,
   ],
   staff: [

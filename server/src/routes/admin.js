@@ -45,6 +45,11 @@ router.get('/stats', (req, res) => {
     ordersToday: count('SELECT COUNT(*) AS n FROM orders WHERE created_at >= ?', startOfToday()),
     products: count('SELECT COUNT(*) AS n FROM products'),
     outOfStock: count('SELECT COUNT(*) AS n FROM finished_items WHERE resolved_at IS NULL'),
+    ...db.prepare(
+      `SELECT COUNT(*) AS openInvoices, COALESCE(SUM(open), 0) AS openAmount FROM (
+         SELECT i.amount_cents - COALESCE((SELECT SUM(p.amount_cents) FROM payments p WHERE p.invoice_id = i.id), 0) AS open
+         FROM invoices i) WHERE open > 0`
+    ).get(),
   });
 });
 
@@ -79,6 +84,9 @@ router.get('/customers', (req, res) => {
       `SELECT c.id, c.name, c.notes, c.created_at AS createdAt,
          (SELECT COUNT(*) FROM branches b WHERE b.customer_id = c.id) AS branchCount,
          (SELECT COUNT(*) FROM users u WHERE u.customer_id = c.id) AS userCount,
+         (SELECT COALESCE(SUM(i.amount_cents), 0) - COALESCE((SELECT SUM(p.amount_cents) FROM payments p
+            JOIN invoices i2 ON i2.id = p.invoice_id WHERE i2.customer_id = c.id), 0)
+          FROM invoices i WHERE i.customer_id = c.id) AS openAmount,
          (SELECT GROUP_CONCAT(DISTINCT b.city) FROM branches b WHERE b.customer_id = c.id AND b.city <> '') AS cities
        FROM customers c
        WHERE c.name LIKE ?
@@ -130,6 +138,8 @@ router.delete('/customers/:id', (req, res) => {
   // Customers with orders are kept for the order history; block their users instead.
   if (count('SELECT COUNT(*) AS n FROM orders WHERE customer_id = ?', customer.id) > 0)
     throw new HttpError(409, 'customer_has_orders');
+  if (count('SELECT COUNT(*) AS n FROM invoices WHERE customer_id = ?', customer.id) > 0)
+    throw new HttpError(409, 'customer_has_invoices');
   transaction(() => {
     // Users first: staff reference branches, which have no cascade.
     db.prepare('DELETE FROM users WHERE customer_id = ?').run(customer.id);

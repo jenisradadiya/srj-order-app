@@ -5,9 +5,10 @@ import { useAuth } from '../../auth.jsx';
 import { useI18n } from '../../i18n/index.jsx';
 import { ErrorText, Icon, Spinner } from '../../components/ui.jsx';
 import { RecentMissing } from '../team/Stock.jsx';
+import { formatMoney } from '../../lib/money.js';
 
 export default function Dashboard() {
-  const { t, te } = useI18n();
+  const { t, te, lang } = useI18n();
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [error, setError] = useState('');
@@ -23,6 +24,7 @@ export default function Dashboard() {
     { label: t('dashboard.customers'), value: stats.customers, to: '/admin/customers' },
     { label: t('dashboard.customerUsers'), value: stats.customerUsers, to: '/admin/customers' },
     { label: t('dashboard.products'), value: stats.products, to: '/admin/products' },
+    { label: t('dashboard.openBills', { count: stats.openInvoices }), value: formatMoney(stats.openAmount, lang), to: '/admin/bills', small: true },
     { label: t('dashboard.outOfStock'), value: stats.outOfStock, to: '/admin/stock', highlight: stats.outOfStock > 0 },
     { label: t('dashboard.todayRoutes'), value: '→', to: '/admin/day' },
   ];
@@ -37,7 +39,7 @@ export default function Dashboard() {
           <div className="stat-grid">
             {tiles.map((tile) => (
               <Link key={tile.label} to={tile.to} className={`stat ${tile.highlight ? 'highlight' : ''}`}>
-                <span className="stat-value">{tile.value}</span>
+                <span className={`stat-value ${tile.small ? 'small-value' : ''}`}>{tile.value}</span>
                 <span className="stat-label">{tile.label}</span>
               </Link>
             ))}
@@ -60,6 +62,7 @@ export default function Dashboard() {
               <Link className="btn" to="/admin/orders"><Icon name="list" /> {t('nav.orders')}</Link>
               <Link className="btn" to="/admin/customers?new=1"><Icon name="plus" /> {t('customers.add')}</Link>
               <Link className="btn" to="/admin/routes"><Icon name="pin" /> {t('nav.routes')}</Link>
+              <Link className="btn" to="/admin/bills?new=1"><Icon name="euro" /> {t('bills.add')}</Link>
               <Link className="btn" to="/admin/products"><Icon name="tag" /> {t('nav.products')}</Link>
               <Link className="btn" to="/admin/team"><Icon name="users" /> {t('nav.team')}</Link>
             </div>

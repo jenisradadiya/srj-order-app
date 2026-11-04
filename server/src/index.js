@@ -13,6 +13,7 @@ import customerRoutes from './routes/customer.js';
 import voiceRoutes, { cleanupVoice } from './routes/voice.js';
 import teamRoutes from './routes/team.js';
 import adminRouteRoutes from './routes/adminRoutes.js';
+import { adminInvoices, customerInvoices, cleanupInvoiceFiles } from './routes/invoices.js';
 
 const PORT = Number(process.env.PORT) || 3001;
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -34,8 +35,9 @@ app.use(loadUser);
 app.use('/api', authRoutes);
 app.use('/api', voiceRoutes);
 app.use('/api', customerRoutes);
+app.use('/api', customerInvoices);
 app.use('/api/team', requireRole('admin', 'warehouse'), teamRoutes);
-app.use('/api/admin', requireRole('admin'), adminRoutes, adminCatalogRoutes, adminOrderRoutes, adminRouteRoutes);
+app.use('/api/admin', requireRole('admin'), adminRoutes, adminCatalogRoutes, adminOrderRoutes, adminRouteRoutes, adminInvoices);
 app.use('/api', (req, res) => res.status(404).json({ error: 'not_found' }));
 
 // After `npm run build`, the server also serves the app itself.
@@ -51,7 +53,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'server_error' });
 });
 
-cleanupVoice();
-setInterval(cleanupVoice, 24 * 60 * 60 * 1000).unref();
+const dailyCleanup = () => {
+  cleanupVoice();
+  cleanupInvoiceFiles();
+};
+dailyCleanup();
+setInterval(dailyCleanup, 24 * 60 * 60 * 1000).unref();
 
 app.listen(PORT, () => console.log(`SRJ server running on http://localhost:${PORT}`));

@@ -1,0 +1,41 @@
+/* Phase 4: bills and payments */
+.badge.bill-open { background: #fde4e7; color: var(--red-dark); }
+.badge.bill-partial { background: #fff1d6; color: #8a5a00; }
+.badge.bill-paid { background: #e6f5ec; color: #1b7a43; }
+.bill-card { border-left: 4px solid var(--border); }
+.bill-line-open { border-left-color: var(--red); }
+.bill-line-partial { border-left-color: #f0b429; }
+.bill-line-paid { border-left-color: #2fa465; }
+.bill-money { display: grid; justify-items: end; text-align: right; white-space: nowrap; }
+.open-badge { padding: 4px 10px; border-radius: 999px; background: #fde4e7; color: var(--red-dark); font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+.stat-value.small-value { font-size: 1.35rem; }
+.stat-grid.totals { grid-template-columns: repeat(3, 1fr); }
+
+.bill-amounts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.bill-amounts > div:not(.progress) { display: grid; gap: 2px; }
+.bill-amounts strong { font-size: 1.25rem; }
+.paid-text { color: var(--green); }
+.open-text { color: var(--red); }
+.progress { grid-column: 1 / -1; height: 8px; border-radius: 999px; background: var(--bg); overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--green); border-radius: 999px; }
+
+.balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.balance { display: grid; gap: 4px; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); }
+.balance span { color: var(--muted); font-weight: 600; font-size: 0.9rem; }
+.balance strong { font-size: 1.6rem; }
+.balance.open { background: var(--red); border-color: var(--red); }
+.balance.open span, .balance.open strong { color: #fff; }
+
+.pdf-drop { display: flex; align-items: center; gap: 12px; padding: 12px; border: 2px dashed var(--border); border-radius: 12px; background: var(--bg); }
+.pdf-drop > svg { color: var(--red); flex-shrink: 0; }
+.pdf-drop strong { word-break: break-all; }
+.filter-chip { display: inline-flex; align-items: center; gap: 4px; justify-self: start; padding: 2px 4px 2px 12px; border-radius: 999px; background: var(--red-tint); color: var(--red); font-weight: 600; }
+.link-row { color: inherit; text-decoration: none; }
+.link-row:hover strong:first-child { color: var(--red); }
+
+@media (max-width: 720px) {
+  .stat-grid.totals { grid-template-columns: 1fr 1fr; }
+  .stat-grid.totals .stat:first-child { grid-column: 1 / -1; }
+  .bill-amounts strong { font-size: 1.05rem; }
+  .pdf-drop { flex-wrap: wrap; }
+}

@@ -4,9 +4,10 @@ import { api } from '../../api.js';
 import { useI18n } from '../../i18n/index.jsx';
 import { ErrorText, Icon, Spinner } from '../../components/ui.jsx';
 import { CustomerForm } from '../../components/admin/CustomerForms.jsx';
+import { formatMoney } from '../../lib/money.js';
 
 export default function Customers() {
-  const { t, te } = useI18n();
+  const { t, te, lang } = useI18n();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [query, setQuery] = useState('');
@@ -59,6 +60,9 @@ export default function Customers() {
                   {c.cities.length > 0 && ` · ${c.cities.join(', ')}`}
                 </div>
               </div>
+              {c.openAmount > 0 && (
+                <span className="open-badge" title={t('bills.totalOpen')}>{formatMoney(c.openAmount, lang)}</span>
+              )}
               <Icon name="chevron" />
             </Link>
           </li>

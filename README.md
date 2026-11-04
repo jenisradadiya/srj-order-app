@@ -2,13 +2,16 @@
 
 Ordering app for SRJ's restaurant, hotel and shop customers. The full plan is in [docs/CONCEPT.md](docs/CONCEPT.md).
 
-**Status:** Phases 1–3 are done.
+**Status:** Phases 1–4 are done.
 - **Phase 1:** login, roles, customers, branches, users, team.
 - **Phase 2:** products with Excel import, ordering with notes and voice messages, order history, repeat order, and the admin order inbox.
 - **Phase 3:**
   - warehouse day view (routes, then stops, then open orders);
   - missing items per order and an out-of-stock list;
   - the route calendar with a drag-and-drop planner.
+- **Phase 4:** bills (Rechnung PDF, number, date, amount), payments (bank, cash or other; partial allowed), and the owner's view of open and paid bills.
+
+**About bills:** the Rechnung itself is still made in weclapp; the app only stores the PDF and tracks what is paid. A bill closes automatically when it is fully paid. Staff (cooks, helpers) never see bills.
 
 Screens added from Phase 3 on are in English only for now; German and Hindi users see English there until the texts are translated.
 
@@ -86,9 +89,10 @@ server/src/
   routes/adminOrders.js    order inbox, accept / delivered
   routes/adminRoutes.js    route plans (weekly template + single days)
   routes/team.js           warehouse + admin: orders, day view, missing / out-of-stock notes
+  routes/invoices.js       bills, payments, PDFs (admin + owner)
   plans.js                 which routes apply on a date
   db.js                    database + migrations
-server/data/               database file + voice recordings (not in git)
+server/data/               database file, voice recordings, bill PDFs (not in git)
 ```
 
 ### Adding or changing text
@@ -108,5 +112,5 @@ All words on screen live in `client/src/i18n/de.js`, `en.js` and `hi.js`. Change
 1. ✅ Foundation: login, roles, customers / branches / users, team, 3 languages
 2. ✅ Ordering: products (Excel import), orders with quantity, note and voice, repeat order
 3. ✅ Warehouse and routes: missing items, finished items list, route calendar
-4. Bills: Rechnung upload, payments, open and paid totals
+4. ✅ Bills: Rechnung upload, payments, open and paid totals
 5. Notifications and go-live: push notifications, reminders, hosting

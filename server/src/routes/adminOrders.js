@@ -15,6 +15,10 @@ router.get('/orders', (req, res) => {
     where.push('o.status = ?');
     params.push(req.query.status);
   }
+  if (req.query.customerId) {
+    where.push('o.customer_id = ?');
+    params.push(Number(req.query.customerId));
+  }
   const q = cleanStr(req.query.q, 100);
   if (q) {
     if (/^#?\d+$/.test(q)) {
