@@ -24,6 +24,15 @@ function findOr404(sql, id) {
 
 // ---------- Dashboard ----------
 
+// Midnight today in German time, as an ISO timestamp.
+function startOfToday() {
+  const now = new Date();
+  const day = now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Berlin' }); // YYYY-MM-DD
+  const berlin = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Berlin' }));
+  const utc = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
+  return new Date(Date.parse(`${day}T00:00:00Z`) - (berlin - utc)).toISOString();
+}
+
 router.get('/stats', (req, res) => {
   res.json({
     customers: count('SELECT COUNT(*) AS n FROM customers'),
@@ -31,6 +40,10 @@ router.get('/stats', (req, res) => {
     customerUsers: count(`SELECT COUNT(*) AS n FROM users WHERE role IN ('owner', 'staff')`),
     team: count(`SELECT COUNT(*) AS n FROM users WHERE role IN ('admin', 'warehouse')`),
     neverLoggedIn: count(`SELECT COUNT(*) AS n FROM users WHERE role IN ('owner', 'staff') AND last_login_at IS NULL`),
+    newOrders: count(`SELECT COUNT(*) AS n FROM orders WHERE status = 'sent'`),
+    acceptedOrders: count(`SELECT COUNT(*) AS n FROM orders WHERE status = 'accepted'`),
+    ordersToday: count('SELECT COUNT(*) AS n FROM orders WHERE created_at >= ?', startOfToday()),
+    products: count('SELECT COUNT(*) AS n FROM products'),
   });
 });
 
@@ -113,6 +126,9 @@ router.patch('/customers/:id', (req, res) => {
 
 router.delete('/customers/:id', (req, res) => {
   const customer = findOr404('SELECT id FROM customers WHERE id = ?', req.params.id);
+  // Customers with orders are kept for the order history; block their users instead.
+  if (count('SELECT COUNT(*) AS n FROM orders WHERE customer_id = ?', customer.id) > 0)
+    throw new HttpError(409, 'customer_has_orders');
   transaction(() => {
     // Users first: staff reference branches, which have no cascade.
     db.prepare('DELETE FROM users WHERE customer_id = ?').run(customer.id);
@@ -143,6 +159,8 @@ router.delete('/branches/:id', (req, res) => {
     throw new HttpError(409, 'last_branch');
   if (count('SELECT COUNT(*) AS n FROM users WHERE branch_id = ?', branch.id) > 0)
     throw new HttpError(409, 'branch_has_staff');
+  if (count('SELECT COUNT(*) AS n FROM orders WHERE branch_id = ?', branch.id) > 0)
+    throw new HttpError(409, 'branch_has_orders');
   db.prepare('DELETE FROM branches WHERE id = ?').run(branch.id);
   res.status(204).end();
 });

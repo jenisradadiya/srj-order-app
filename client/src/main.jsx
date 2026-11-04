@@ -5,6 +5,7 @@ import App from './App.jsx';
 import { I18nProvider } from './i18n/index.jsx';
 import { AuthProvider } from './auth.jsx';
 import './styles.css';
+import './ordering.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

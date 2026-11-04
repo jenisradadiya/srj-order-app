@@ -6,6 +6,24 @@ export class ApiError extends Error {
   }
 }
 
+// Uploads a recording (raw audio body). Returns { id, duration }.
+export async function uploadVoice(blob, duration) {
+  let res;
+  try {
+    res = await fetch('/api/voice', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': blob.type || 'audio/webm', 'X-Duration': String(Math.round(duration * 10) / 10) },
+      body: blob,
+    });
+  } catch {
+    throw new ApiError('network', 0);
+  }
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new ApiError(data?.error || (res.status === 413 ? 'voice_too_large' : 'server_error'), res.status);
+  return data;
+}
+
 // Small fetch wrapper. Errors carry a `code` the UI translates via errors.<code>.
 export async function api(path, { method = 'GET', body } = {}) {
   let res;

@@ -7,6 +7,10 @@ import { loadUser, requireRole } from './auth.js';
 import { HttpError } from './util.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
+import adminCatalogRoutes from './routes/adminCatalog.js';
+import adminOrderRoutes from './routes/adminOrders.js';
+import customerRoutes from './routes/customer.js';
+import voiceRoutes, { cleanupVoice } from './routes/voice.js';
 
 const PORT = Number(process.env.PORT) || 3001;
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -26,7 +30,9 @@ app.use((req, res, next) => {
 app.use(loadUser);
 
 app.use('/api', authRoutes);
-app.use('/api/admin', requireRole('admin'), adminRoutes);
+app.use('/api', voiceRoutes);
+app.use('/api', customerRoutes);
+app.use('/api/admin', requireRole('admin'), adminRoutes, adminCatalogRoutes, adminOrderRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: 'not_found' }));
 
 // After `npm run build`, the server also serves the app itself.
@@ -41,5 +47,8 @@ app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: 'server_error' });
 });
+
+cleanupVoice();
+setInterval(cleanupVoice, 24 * 60 * 60 * 1000).unref();
 
 app.listen(PORT, () => console.log(`SRJ server running on http://localhost:${PORT}`));

@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api.js';
+import { branchAddress } from '../components/OrderView.jsx';
 import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { ErrorText, Field, Icon, LanguageSwitcher, PinInput, formatPhone } from '../components/ui.jsx';
@@ -35,13 +37,32 @@ export default function Profile() {
             <span className={`badge role-${user.role}`}>{t(`roles.${user.role}`)}</span>
           </div>
         </div>
-        {user.customer && (
-          <p className="muted small">
-            {user.customer.name}
-            {user.role === 'staff' && user.branches[0] && ` · ${user.branches[0].name}`}
-          </p>
-        )}
+        {user.customer && <p className="muted small">{user.customer.name}</p>}
       </section>
+
+      {user.branches.length > 0 && (
+        <section className="card">
+          <h2>{user.branches.length > 1 ? t('home.yourBranches') : t('home.yourBranch')}</h2>
+          <ul className="plain-list">
+            {user.branches.map((b) => (
+              <li key={b.id} className="list-row">
+                <Icon name="pin" />
+                <div>
+                  <strong>{b.name}</strong>
+                  <div className="muted small">{branchAddress(b)}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {user.role === 'admin' && (
+        <Link to="/admin/team" className="customer-card mobile-only">
+          <span><Icon name="users" /> {t('nav.team')}</span>
+          <Icon name="chevron" />
+        </Link>
+      )}
 
       <section className="card">
         <h2>{t('fields.language')}</h2>

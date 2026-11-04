@@ -53,4 +53,4 @@ export function AuthProvider({ children }) {
 export const useAuth = () => useContext(AuthContext);
 
 export const homePath = (role) =>
-  ({ admin: '/admin', warehouse: '/warehouse', owner: '/home', staff: '/home' })[role] || '/';
+  ({ admin: '/admin', warehouse: '/warehouse', owner: '/order', staff: '/order' })[role] || '/';

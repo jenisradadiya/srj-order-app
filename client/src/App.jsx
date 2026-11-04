@@ -1,17 +1,25 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth, homePath } from './auth.jsx';
 import { useI18n } from './i18n/index.jsx';
+import { DraftProvider } from './lib/draft.jsx';
 import Layout from './components/Layout.jsx';
 import { Spinner } from './components/ui.jsx';
 import Login from './pages/Login.jsx';
 import Setup from './pages/Setup.jsx';
 import Profile from './pages/Profile.jsx';
-import CustomerHome from './pages/CustomerHome.jsx';
 import WarehouseHome from './pages/WarehouseHome.jsx';
+import OrderPage from './pages/customer/OrderPage.jsx';
+import CartPage from './pages/customer/CartPage.jsx';
+import OrdersPage from './pages/customer/OrdersPage.jsx';
+import OrderDetailPage from './pages/customer/OrderDetailPage.jsx';
 import Dashboard from './pages/admin/Dashboard.jsx';
 import Customers from './pages/admin/Customers.jsx';
 import CustomerDetail from './pages/admin/CustomerDetail.jsx';
 import Team from './pages/admin/Team.jsx';
+import Orders from './pages/admin/Orders.jsx';
+import OrderDetail from './pages/admin/OrderDetail.jsx';
+import Products from './pages/admin/Products.jsx';
+import ProductImport from './pages/admin/ProductImport.jsx';
 
 export default function App() {
   const { loading, user, needsSetup, error, reload } = useAuth();
@@ -38,23 +46,40 @@ export default function App() {
   if (!user) return <Login />;
 
   const role = user.role;
+  const isCustomer = role === 'owner' || role === 'staff';
+
+  const routes = (
+    <Routes>
+      <Route path="/" element={<Navigate to={homePath(role)} replace />} />
+      <Route path="/profile" element={<Profile />} />
+      {role === 'admin' && (
+        <>
+          <Route path="/admin" element={<Dashboard />} />
+          <Route path="/admin/orders" element={<Orders />} />
+          <Route path="/admin/orders/:id" element={<OrderDetail />} />
+          <Route path="/admin/customers" element={<Customers />} />
+          <Route path="/admin/customers/:id" element={<CustomerDetail />} />
+          <Route path="/admin/products" element={<Products />} />
+          <Route path="/admin/products/import" element={<ProductImport />} />
+          <Route path="/admin/team" element={<Team />} />
+        </>
+      )}
+      {role === 'warehouse' && <Route path="/warehouse" element={<WarehouseHome />} />}
+      {isCustomer && (
+        <>
+          <Route path="/order" element={<OrderPage />} />
+          <Route path="/order/cart" element={<CartPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:id" element={<OrderDetailPage />} />
+        </>
+      )}
+      <Route path="*" element={<Navigate to={homePath(role)} replace />} />
+    </Routes>
+  );
+
   return (
     <Layout>
-      <Routes>
-        <Route path="/" element={<Navigate to={homePath(role)} replace />} />
-        <Route path="/profile" element={<Profile />} />
-        {role === 'admin' && (
-          <>
-            <Route path="/admin" element={<Dashboard />} />
-            <Route path="/admin/customers" element={<Customers />} />
-            <Route path="/admin/customers/:id" element={<CustomerDetail />} />
-            <Route path="/admin/team" element={<Team />} />
-          </>
-        )}
-        {role === 'warehouse' && <Route path="/warehouse" element={<WarehouseHome />} />}
-        {(role === 'owner' || role === 'staff') && <Route path="/home" element={<CustomerHome />} />}
-        <Route path="*" element={<Navigate to={homePath(role)} replace />} />
-      </Routes>
+      {isCustomer ? <DraftProvider key={user.id}>{routes}</DraftProvider> : routes}
     </Layout>
   );
 }

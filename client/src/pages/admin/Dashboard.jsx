@@ -16,10 +16,12 @@ export default function Dashboard() {
   }, [te]);
 
   const tiles = stats && [
+    { label: t('dashboard.newOrders'), value: stats.newOrders, to: '/admin/orders', highlight: stats.newOrders > 0 },
+    { label: t('dashboard.acceptedOrders'), value: stats.acceptedOrders, to: '/admin/orders?status=accepted' },
+    { label: t('dashboard.ordersToday'), value: stats.ordersToday, to: '/admin/orders?status=all' },
     { label: t('dashboard.customers'), value: stats.customers, to: '/admin/customers' },
-    { label: t('dashboard.branches'), value: stats.branches, to: '/admin/customers' },
     { label: t('dashboard.customerUsers'), value: stats.customerUsers, to: '/admin/customers' },
-    { label: t('dashboard.team'), value: stats.team, to: '/admin/team' },
+    { label: t('dashboard.products'), value: stats.products, to: '/admin/products' },
   ];
 
   return (
@@ -31,7 +33,7 @@ export default function Dashboard() {
         <>
           <div className="stat-grid">
             {tiles.map((tile) => (
-              <Link key={tile.label} to={tile.to} className="stat">
+              <Link key={tile.label} to={tile.to} className={`stat ${tile.highlight ? 'highlight' : ''}`}>
                 <span className="stat-value">{tile.value}</span>
                 <span className="stat-label">{tile.label}</span>
               </Link>
@@ -41,11 +43,18 @@ export default function Dashboard() {
           {stats.neverLoggedIn > 0 && (
             <p className="notice">{t('dashboard.neverLoggedIn', { count: stats.neverLoggedIn })}</p>
           )}
+          {stats.products === 0 && (
+            <p className="notice">
+              {t('dashboard.noProducts')} <Link to="/admin/products/import">{t('products.import')}</Link>
+            </p>
+          )}
 
           <section className="card">
             <h2>{t('dashboard.quickActions')}</h2>
             <div className="quick-actions">
+              <Link className="btn" to="/admin/orders"><Icon name="list" /> {t('nav.orders')}</Link>
               <Link className="btn" to="/admin/customers?new=1"><Icon name="plus" /> {t('customers.add')}</Link>
+              <Link className="btn" to="/admin/products"><Icon name="tag" /> {t('nav.products')}</Link>
               <Link className="btn" to="/admin/team"><Icon name="users" /> {t('nav.team')}</Link>
             </div>
           </section>
