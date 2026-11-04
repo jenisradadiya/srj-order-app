@@ -31,13 +31,20 @@ export default function FinishedList() {
     }
   };
 
-  const add = (e) => {
+  // Clear the field right away so the next item can be typed; put the text back if saving fails.
+  const add = async (e) => {
     e.preventDefault();
-    if (!text.trim()) return;
-    run(async () => {
-      await api('/team/finished', { method: 'POST', body: { text } });
-      setText('');
-    });
+    const value = text.trim();
+    if (!value) return;
+    setText('');
+    setError('');
+    try {
+      await api('/team/finished', { method: 'POST', body: { text: value } });
+      load();
+    } catch (err) {
+      setText((current) => current || value);
+      setError(te(err.code));
+    }
   };
 
   const canDelete = (item) => user.role === 'admin' || item.userId === user.id;

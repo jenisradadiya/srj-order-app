@@ -1,0 +1,66 @@
+/* Phase 5: bell, notifications, install / setup, legal */
+.bell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-left: 8px;
+  border-radius: 10px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.bell:hover, .bell.active { background: var(--red-tint); color: var(--red); }
+.bell .nav-badge { top: 2px; right: 0; }
+
+.notification { align-items: flex-start; }
+.notification.unread { border-color: var(--red); background: #fffafa; }
+.notification.unread strong::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  vertical-align: middle;
+}
+.notif-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--red-tint);
+  color: var(--red);
+  flex-shrink: 0;
+}
+
+.setup-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 960px;
+  margin: 0 auto 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--red);
+  color: #fff;
+}
+.setup-banner a { color: #fff; font-weight: 600; text-decoration: none; }
+.setup-banner .icon-btn { color: #fff; }
+.setup-banner .icon-btn:hover { background: rgb(255 255 255 / 0.15); }
+
+.steps { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+.share-icon { display: inline-block; padding: 0 6px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; }
+.success-line { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--green); font-weight: 600; }
+.align-end { align-self: end; }
+h3 { margin-top: 4px; }
+
+.legal-public { max-width: 720px; margin: 0 auto; padding: 24px 16px; display: grid; gap: 16px; }
+.legal p, .legal-public p, .legal li, .legal-public li { line-height: 1.6; }
+
+@media (max-width: 720px) {
+  .topbar { justify-content: space-between; }
+  .bell { margin-left: auto; }
+}

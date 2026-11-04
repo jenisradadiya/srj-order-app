@@ -35,7 +35,26 @@ router.post('/setup', (req, res) => {
   res.status(201).json({ user: userProfile(id) });
 });
 
+// Besides the per-number lock, limit attempts per device/network,
+// so nobody can try PINs across many phone numbers.
+const ATTEMPT_WINDOW = 15 * 60 * 1000;
+const MAX_PER_IP = 30;
+const attemptsByIp = new Map();
+
+function checkIpLimit(ip) {
+  const now = Date.now();
+  const entry = attemptsByIp.get(ip);
+  if (!entry || entry.resetAt < now) {
+    attemptsByIp.set(ip, { count: 1, resetAt: now + ATTEMPT_WINDOW });
+    if (attemptsByIp.size > 10000) for (const [k, v] of attemptsByIp) if (v.resetAt < now) attemptsByIp.delete(k);
+    return;
+  }
+  entry.count++;
+  if (entry.count > MAX_PER_IP) throw new HttpError(429, 'locked');
+}
+
 router.post('/auth/login', (req, res) => {
+  checkIpLimit(req.ip);
   const phone = normalizePhone(req.body.phone);
   const pin = String(req.body.pin ?? '');
   if (!phone || !isValidPin(pin)) throw new HttpError(401, 'login_failed');

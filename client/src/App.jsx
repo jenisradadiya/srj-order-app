@@ -1,4 +1,6 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import Notifications from './pages/Notifications.jsx';
+import Legal from './pages/Legal.jsx';
 import { useAuth, homePath } from './auth.jsx';
 import { useI18n } from './i18n/index.jsx';
 import { DraftProvider } from './lib/draft.jsx';
@@ -33,6 +35,7 @@ import ProductImport from './pages/admin/ProductImport.jsx';
 export default function App() {
   const { loading, user, needsSetup, error, reload } = useAuth();
   const { t, te } = useI18n();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -51,6 +54,8 @@ export default function App() {
       </div>
     );
   }
+  // Impressum / Datenschutz must be reachable without logging in.
+  if (!user && location.pathname === '/legal') return <Legal />;
   if (needsSetup) return <Setup />;
   if (!user) return <Login />;
 
@@ -61,6 +66,8 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Navigate to={homePath(role)} replace />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/notifications" element={<Notifications />} />
+      <Route path="/legal" element={<Legal />} />
       {role === 'admin' && (
         <>
           <Route path="/admin" element={<Dashboard />} />

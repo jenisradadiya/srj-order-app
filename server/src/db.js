@@ -223,7 +223,50 @@ const migrations = [
   );
   CREATE INDEX payments_invoice ON payments(invoice_id);
   `,
+
+  // 5: notifications, push subscriptions, settings
+  `
+  -- One row per phone/browser that allowed push notifications.
+  CREATE TABLE push_subscriptions (
+    id            INTEGER PRIMARY KEY,
+    user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    endpoint      TEXT NOT NULL UNIQUE,
+    p256dh        TEXT NOT NULL,
+    auth          TEXT NOT NULL,
+    user_agent    TEXT NOT NULL DEFAULT '',
+    created_at    TEXT NOT NULL DEFAULT ${NOW}
+  );
+  CREATE INDEX push_subscriptions_user ON push_subscriptions(user_id);
+
+  -- The in-app list (bell). Also works when push is not allowed.
+  CREATE TABLE notifications (
+    id          INTEGER PRIMARY KEY,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    kind        TEXT NOT NULL,
+    title       TEXT NOT NULL,
+    body        TEXT NOT NULL,
+    url         TEXT NOT NULL DEFAULT '/',
+    created_at  TEXT NOT NULL DEFAULT ${NOW},
+    read_at     TEXT
+  );
+  CREATE INDEX notifications_user ON notifications(user_id, id);
+
+  CREATE TABLE settings (
+    key    TEXT PRIMARY KEY,
+    value  TEXT NOT NULL
+  );
+  `,
 ];
+
+export function getSetting(key, fallback = null) {
+  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key);
+  return row ? JSON.parse(row.value) : fallback;
+}
+
+export function setSetting(key, value) {
+  db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value')
+    .run(key, JSON.stringify(value));
+}
 
 export { dataDir };
 

@@ -9,7 +9,8 @@
     "dev": "concurrently -k -n server,client -c red,blue \"npm run dev -w server\" \"npm run dev -w client\"",
     "dev:phone": "concurrently -k -n server,client -c red,blue \"npm run dev -w server\" \"npm run dev:phone -w client\"",
     "build": "npm run build -w client",
-    "start": "npm run start -w server"
+    "start": "npm run start -w server",
+    "backup": "npm run backup -w server"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

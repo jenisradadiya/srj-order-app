@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { api } from './api.js';
 import { useI18n } from './i18n/index.jsx';
+import { detachPush, resyncPush } from './lib/push.js';
 
 const AuthContext = createContext(null);
 
@@ -34,11 +35,13 @@ export function AuthProvider({ children }) {
     (user) => {
       setState((s) => ({ ...s, user, needsSetup: false }));
       setLang(user.language);
+      resyncPush();
     },
     [setLang]
   );
 
   const logout = useCallback(async () => {
+    await detachPush();
     await api('/auth/logout', { method: 'POST' }).catch(() => {});
     setState((s) => ({ ...s, user: null }));
   }, []);

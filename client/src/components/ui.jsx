@@ -33,6 +33,7 @@ const ICONS = {
   down: 'M6 9l6 6 6-6',
   refresh: 'M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15',
   euro: 'M18 6.5A7 7 0 1 0 18 17.5M4 10h10M4 14h10',
+  bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0',
 };
 
 export function Icon({ name, size = 20 }) {

@@ -5,6 +5,7 @@ import { branchAddress } from '../components/OrderView.jsx';
 import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { ErrorText, Field, Icon, LanguageSwitcher, PinInput, formatPhone } from '../components/ui.jsx';
+import { InstallGuide, NotificationSetup } from '../components/AppSetup.jsx';
 
 export default function Profile() {
   const { t, te, lang, setLang } = useI18n();
@@ -73,6 +74,13 @@ export default function Profile() {
         </div>
       )}
 
+      <section className="card stack" id="app">
+        <h2>{t('appSetup.appTitle')}</h2>
+        <InstallGuide />
+        <h3>{t('appSetup.notificationsTitle')}</h3>
+        <NotificationSetup />
+      </section>
+
       <section className="card">
         <h2>{t('fields.language')}</h2>
         <LanguageSwitcher value={lang} onChange={changeLanguage} />
@@ -84,6 +92,7 @@ export default function Profile() {
       <button className="btn block" onClick={logout}>
         <Icon name="logout" /> {t('profile.logout')}
       </button>
+      <Link to="/legal" className="muted small center">{t('legal.link')}</Link>
     </div>
   );
 }

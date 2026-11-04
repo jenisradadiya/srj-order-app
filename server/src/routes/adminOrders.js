@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { db } from '../db.js';
 import { HttpError, cleanStr } from '../util.js';
 import { getMissing, getOrderDetail, listOrders } from '../orders.js';
+import { notifyUsers, ownerIds } from '../notify.js';
 
 // Order inbox for SRJ. Mounted behind requireRole('admin').
 const router = Router();
@@ -57,9 +58,12 @@ router.post('/orders/:id/status', (req, res) => {
     db.prepare(`UPDATE orders SET status = 'sent', accepted_at = NULL, accepted_by = NULL WHERE id = ?`).run(order.id);
   } else if (next === 'accepted') {
     // From "sent": record who accepted. From "delivered": just undo the delivery.
-    if (order.status === 'sent')
+    if (order.status === 'sent') {
       db.prepare(`UPDATE orders SET status = 'accepted', accepted_at = ?, accepted_by = ? WHERE id = ?`).run(now, req.user.name, order.id);
-    else db.prepare(`UPDATE orders SET status = 'accepted', delivered_at = NULL WHERE id = ?`).run(order.id);
+      // Tell the person who ordered, and the restaurant's owners.
+      const o = db.prepare('SELECT user_id, customer_id FROM orders WHERE id = ?').get(order.id);
+      notifyUsers([o.user_id, ...ownerIds(o.customer_id)], 'accepted', { id: order.id }, `/orders/${order.id}`);
+    } else db.prepare(`UPDATE orders SET status = 'accepted', delivered_at = NULL WHERE id = ?`).run(order.id);
   } else {
     db.prepare(`UPDATE orders SET status = 'delivered', delivered_at = ? WHERE id = ?`).run(now, order.id);
   }

@@ -28,7 +28,73 @@ export default function Routes() {
         </button>
       </div>
       {view === 'calendar' ? <Calendar /> : <WeeklyPlan />}
+      <ReminderSettings />
     </div>
+  );
+}
+
+// "Tomorrow is your delivery" – sent automatically the day before, at the set time.
+function ReminderSettings() {
+  const { t, te, lang } = useI18n();
+  const [settings, setSettings] = useState(null);
+  const [message, setMessage] = useState({ error: '', ok: '' });
+  const [busy, setBusy] = useState(false);
+  const tomorrow = addDays(todayStr(), 1);
+
+  useEffect(() => {
+    api('/admin/reminders').then((d) => setSettings(d.settings)).catch((err) => setMessage({ error: te(err.code), ok: '' }));
+  }, [te]);
+
+  const run = async (fn) => {
+    setBusy(true);
+    setMessage({ error: '', ok: '' });
+    try {
+      setMessage({ error: '', ok: await fn() });
+    } catch (err) {
+      setMessage({ error: te(err.code), ok: '' });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const save = (next) =>
+    run(async () => {
+      const d = await api('/admin/reminders', { method: 'PUT', body: next });
+      setSettings(d.settings);
+      return t('plan.saved');
+    });
+
+  const sendNow = () =>
+    confirm(t('reminders.sendConfirm', { day: formatDay(tomorrow, lang) })) &&
+    run(async () => {
+      const r = await api('/admin/reminders/send', { method: 'POST', body: { date: tomorrow } });
+      return t('reminders.sent', r);
+    });
+
+  if (!settings) return <ErrorText>{message.error}</ErrorText>;
+  return (
+    <section className="card stack">
+      <h2><Icon name="bell" /> {t('reminders.title')}</h2>
+      <p className="muted small">{t('reminders.hint')}</p>
+      <label className="check-row">
+        <input type="checkbox" checked={settings.enabled} disabled={busy}
+          onChange={(e) => save({ ...settings, enabled: e.target.checked })} />
+        <span><strong>{t('reminders.enabled')}</strong></span>
+      </label>
+      <div className="inline-form">
+        <label className="field grow">
+          <span className="field-label">{t('reminders.time')}</span>
+          <input type="time" value={settings.time} disabled={!settings.enabled || busy}
+            onChange={(e) => setSettings({ ...settings, time: e.target.value })} />
+        </label>
+        <button className="btn align-end" disabled={busy} onClick={() => save(settings)}>{t('common.save')}</button>
+      </div>
+      <button className="btn small" disabled={busy} onClick={sendNow}>
+        <Icon name="send" size={16} /> {t('reminders.sendNow')}
+      </button>
+      <ErrorText>{message.error}</ErrorText>
+      {message.ok && <p className="success small" role="status">{message.ok}</p>}
+    </section>
   );
 }
 

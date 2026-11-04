@@ -4,10 +4,12 @@
   "type": "module",
   "scripts": {
     "dev": "node --disable-warning=ExperimentalWarning --watch src/index.js",
-    "start": "node --disable-warning=ExperimentalWarning src/index.js"
+    "start": "node --disable-warning=ExperimentalWarning src/index.js",
+    "backup": "node --disable-warning=ExperimentalWarning scripts/backup.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "web-push": "^3.6.7"
   }
 }

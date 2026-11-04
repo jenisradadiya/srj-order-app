@@ -16,14 +16,17 @@ export default function MissingItems({ order, onChange }) {
 
   const add = async (e) => {
     e.preventDefault();
-    if (!text.trim()) return;
+    const value = text.trim();
+    if (!value) return;
+    // Clear right away so the next note can be typed; put the text back if saving fails.
+    setText('');
     setBusy(true);
     setError('');
     try {
-      const { missing } = await api(`/team/orders/${order.id}/missing`, { method: 'POST', body: { text } });
+      const { missing } = await api(`/team/orders/${order.id}/missing`, { method: 'POST', body: { text: value } });
       onChange(missing);
-      setText('');
     } catch (err) {
+      setText((current) => current || value);
       setError(te(err.code));
     } finally {
       setBusy(false);

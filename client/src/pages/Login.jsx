@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
@@ -58,6 +59,7 @@ export default function Login() {
           {t('login.submit')}
         </button>
         <p className="muted small center">{t('login.forgot')}</p>
+        <Link to="/legal" className="muted small center">{t('legal.link')}</Link>
       </form>
     </AuthScreen>
   );

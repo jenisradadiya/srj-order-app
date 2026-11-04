@@ -8,6 +8,11 @@ import './styles.css';
 import './ordering.css';
 import './planning.css';
 import './bills.css';
+import './app.css';
+import { captureInstallPrompt, registerServiceWorker } from './lib/push.js';
+
+registerServiceWorker();
+captureInstallPrompt();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

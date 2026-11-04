@@ -6,6 +6,7 @@ import { db, dataDir, transaction } from '../db.js';
 import { requireRole } from '../auth.js';
 import { HttpError, cleanStr } from '../util.js';
 import { isDate } from '../plans.js';
+import { notifyUsers, ownerIds } from '../notify.js';
 
 // Bills (Rechnungen) and payments.
 //  - adminInvoices: everything, mounted behind requireRole('admin')
@@ -189,7 +190,10 @@ adminInvoices.post('/invoices', (req, res) => {
     ).run(inv.customerId, inv.branchId, inv.orderId, inv.number, inv.date, inv.amount, inv.note,
       fileId, fileId ? cleanStr(req.body.fileName, 120) || `${inv.number}.pdf` : null, req.user.name).lastInsertRowid
   );
-  res.status(201).json({ invoice: withPayments(getInvoice(id)) });
+  const invoice = getInvoice(id);
+  const euro = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(invoice.amount / 100);
+  notifyUsers(ownerIds(invoice.customerId), 'newBill', { number: invoice.number, amount: euro, customer: invoice.customerName }, `/bills/${id}`);
+  res.status(201).json({ invoice: withPayments(invoice) });
 });
 
 adminInvoices.patch('/invoices/:id', (req, res) => {

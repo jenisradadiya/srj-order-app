@@ -4,6 +4,7 @@ import { api } from '../api.js';
 import { useAuth, homePath } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { Icon } from './ui.jsx';
+import { SetupBanner } from './AppSetup.jsx';
 
 const PROFILE = { to: '/profile', label: 'nav.profile', icon: 'user' };
 
@@ -53,10 +54,29 @@ function useNewOrderCount(enabled) {
   return count;
 }
 
+// Unread notifications, for the bell.
+function useUnreadCount() {
+  const [count, setCount] = useState(0);
+  const location = useLocation();
+  useEffect(() => {
+    const load = () => api('/notifications/count').then((d) => setCount(d.unread)).catch(() => {});
+    load();
+    const timer = setInterval(load, 60000);
+    const onRead = () => setCount(0);
+    window.addEventListener('srj:notifications-read', onRead);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('srj:notifications-read', onRead);
+    };
+  }, [location.pathname]);
+  return count;
+}
+
 export default function Layout({ children }) {
   const { user } = useAuth();
   const { t } = useI18n();
   const newOrders = useNewOrderCount(user.role === 'admin');
+  const unread = useUnreadCount();
   const badges = { newOrders };
 
   return (
@@ -77,8 +97,15 @@ export default function Layout({ children }) {
             </NavLink>
           ))}
         </nav>
+        <NavLink to="/notifications" className="bell" aria-label={t('notifications.title')}>
+          <Icon name="bell" />
+          {unread > 0 && <span className="nav-badge">{unread > 99 ? '99+' : unread}</span>}
+        </NavLink>
       </header>
-      <main className="content">{children}</main>
+      <main className="content">
+        <SetupBanner />
+        {children}
+      </main>
     </div>
   );
 }

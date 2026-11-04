@@ -3,6 +3,7 @@ import { db, transaction } from '../db.js';
 import { requireAuth, requireRole } from '../auth.js';
 import { HttpError, cleanStr } from '../util.js';
 import { getOrderDetail, listOrders } from '../orders.js';
+import { adminIds, notifyUsers } from '../notify.js';
 
 // Catalog and orders for restaurant owners and staff.
 const router = Router();
@@ -126,7 +127,11 @@ router.post('/orders', requireRole('owner', 'staff'), (req, res) => {
     return id;
   });
 
-  res.status(201).json({ order: getOrderDetail(orderId) });
+  const order = getOrderDetail(orderId);
+  notifyUsers(adminIds(), 'newOrder', {
+    id: order.id, customer: order.customer.name, branch: order.branch.name, items: order.items.length,
+  }, `/admin/orders/${order.id}`);
+  res.status(201).json({ order });
 });
 
 export default router;
