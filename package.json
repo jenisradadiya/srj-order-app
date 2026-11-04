@@ -1,0 +1,16 @@
+{
+  "name": "srj-order-app",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SRJ Order App - ordering, routes and bills for SRJ customers",
+  "workspaces": ["server", "client"],
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c red,blue \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w client",
+    "start": "npm run start -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
